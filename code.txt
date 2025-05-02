@@ -1,0 +1,241 @@
+def knapsack(weights, p, capacity):
+    # Get the number of items
+    n = len(weights)
+
+    # Create a 2D table to store results of subproblems
+    k = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+    # Fill the table
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            if weights[i - 1] <= w:
+                k[i][w] = max(k[i - 1][w], k[i - 1][w - weights[i - 1]] + p[i - 1])
+            else:
+                k[i][w] = k[i - 1][w]
+
+    # Find which items were included
+    w = capacity
+    included_items = []
+    for i in range(n, 0, -1):
+        if k[i][w] != k[i - 1][w]:
+            included_items.append(i - 1)  # Store item index
+            w -= weights[i - 1]
+
+    # Return the maximum value and the items included
+    return k[n][capacity], included_items
+
+# Define weights and profits (renamed from values to p)
+weights = [3, 4, 6, 5]
+p = [2, 3, 1, 4]
+capacity = 8
+
+# Call the function
+max_value, items_used = knapsack(weights, p, capacity)
+
+# Output
+print(f"Maximum value in the knapsack: {max_value}")
+print("Items included (0-indexed):", items_used)
+
+
+
+------------------------------------------------------------------------------------------------
+
+#graph color
+#there is 3 functions issafe ,solve ,graph coloring\
+
+def issafe(graph , color , v ,c ):
+  return all(graph[v][i] == 0 or color[i] != c for i in range(len(graph)))
+
+def solve(graph , m , color , v=0):
+  if v == len(graph):
+    return True
+  for c in range(1 , m+1):
+    if issafe(graph , color , v , c):
+      color[v] = c
+      if solve(graph , m , color , v+1):
+        return True
+      color[v] = 0
+  return False 
+
+def graphcolour(graph ,m ):
+  color=[0] * len(graph)
+  if solve(graph , m , color):
+    print('color assigned :',color)
+  else:
+    print('no solution ')  
+
+#input 
+graph =[
+     [0, 1, 1, 1],
+    [1, 0, 1, 0],
+    [1, 1, 0, 1],
+    [1, 0, 1, 0] 
+]
+
+m=3
+graphcolour(graph,m)
+
+-------------------------------------------------------------------------------------------------------
+
+#obst
+
+#obst is divided into 4 parts input , initilize , fill first block , filll remainunh block 
+#2 def function and  initilize all with zerp 
+def obst(p,q,n ):
+  cost = [[0]*(n+1) for _ in range (n+1)]
+  weight = [[0]*(n+1) for _ in range (n+1)]
+
+#3 fill first block
+  for i in range(n+1):
+    cost[i][i] = 0
+    weight[i][i] = q[i]
+
+#4 fill remaning blocks
+  for l in range(1,n+1):
+    for i in range(n-l+1):
+      j = i+l
+      weight[i][j] = weight[i][j-1] + p[j-1]+ q[j]
+      cost[i][j] = min (
+          cost[i][k-1] + cost[k][j] + weight [i][j]
+          for k in range(i+1 ,j+1)
+      )
+  return cost[0][n]
+#1 input 
+p = []
+n = int(input('enter the no of keys :'))
+for _ in range(n):
+  s=int(input('enter the success probality :'))
+  p.append(s)
+
+q = []
+for _ in range (n+1):
+  f=int(input('enter the failure probality :'))
+  q.append(f)
+print('obst cost is :',obst(p,q,n))
+-------------------------------------------------------------------------------------------------------
+
+#fractional knapsack
+def fractionalknapsack(weight , profit , capacity):
+  ratio = []
+  for i in range(len(weight)):
+    r = profit[i] / weight[i]
+    ratio.append((r , profit[i] , weight[i]))
+
+
+  ratio.sort(reverse = True )
+  total_profit = 0
+  print(ratio)
+  for r,p,w in ratio:
+    if capacity >= w:
+      capacity = capacity - w
+      total_profit = total_profit + p
+
+    else:
+      total_profit = total_profit + (capacity * r)
+      break
+  return total_profit
+
+
+  # Example usage
+weight = [10, 20, 5]
+profit = [60, 10, 120]
+capacity = 30
+
+
+print("Maximum profit:", fractionalknapsack(weight , profit , capacity))    
+----------------------------------------------------------------------------------------------------
+
+#binary search 
+#2
+def binarysearch(arr,left , right ,key ):
+  if left <= right:
+    mid = (left + right ) // 2
+  if arr[mid] == key:
+    return mid
+  elif arr[mid] > key:
+    return binarysearch(arr ,left , mid-1 ,key)
+  elif arr[mid] < key:
+    return binarysearch(arr,mid+1,right ,key)
+  else:
+    return -1  
+
+
+# input
+arr =[]
+key = int(input('enter the element to search'))
+n = int(input('enter the size of an array :'))
+for i in range(n):
+  a=int(input('enter the element of an array '))
+  arr.append(a)
+result = binarysearch(arr,0,len(arr)-1,key)
+if (result != -1):
+  print('element found at index', result)
+else:
+  print('element not found ')
+---------------------------------------------------------------------------------------------------
+#quicksort
+def quicksort(arr):
+  if len(arr) <= 1:
+    return arr
+  pivot = arr[0]  
+  left=[x for x in  arr[1:] if x < pivot]  
+  right=[x for x in arr[1:] if x >= pivot]
+  return quicksort(left) + [pivot] + quicksort(right)
+
+#input
+arr = []
+n=int(input('Enter the size of an array :'))
+for i in range(n):
+  a=int(input('enter the no of array :'))
+  arr.append(a)
+print('sorted array is :', quicksort(arr) ) 
+
+-----------------------------------------------------------------------------------------------------
+#queen 
+def solve(b, n, r=0):
+    # Base case: If all queens are placed, print the board
+    if r == n:
+        for i in range(n):
+            for j in range(n):
+                print('Q' if b[i] == j else '.', end=' ')
+            print()
+        return True
+
+    # Try to place queen in each column of current row `r`
+    for c in range(n):
+        # Check for conflicts with previously placed queens
+        for i in range(r):
+            if b[i] == c or abs(b[i] - c) == abs(r - i):
+                break
+        else:
+            b[r] = c  # Place queen
+            if solve(b, n, r + 1):  # Recurse to next row
+                return True
+
+    return False  # No valid position found for this row
+
+# Take number of queens from user
+n = int(input("Enter the number of queens: "))
+board = [-1] * n  # Initialize the board with -1
+
+if not solve(board, n):
+    print("No solution exists.")
+
+
+--------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
